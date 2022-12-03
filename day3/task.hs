@@ -1,14 +1,14 @@
-module Day3 where
+import Data.List
+import Data.Char
+import Data.Ix
 import Text.Printf
-import Data.List (intersect)
-import Data.Char (ord)
 
 split :: [a] -> ([a], [a])
 split myList = splitAt (((length myList) + 1) `div` 2) myList
 
 priority :: String -> Int
-priority (c:cs) 
-   | c >= 'a' && c <= 'z' = ord c - ord 'a' + 1
+priority (c:cs)
+   | inRange ('a','z') c = ord c - ord 'a' + 1
 priority (c:cs) = ord c - ord 'A' + 26 + 1
 
 common :: (String,String) -> String
@@ -31,9 +31,5 @@ task2 s = sum $ map priority $ map intersection $ slice 3 $ lines s
 
 main = do
     body <- getContents
-
-    let ans1 = task1 body
-    printf "Round 1 total score %d\n" ans1
-
-    let ans2 = task2 body
-    printf "Round 2 total score %d\n" ans2
+    printf "Round 1 total score %d\n" (task1 body)
+    printf "Round 2 total score %d\n" (task2 body)
