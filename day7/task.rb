@@ -1,63 +1,45 @@
-dirs = {}
-cdir = ['/']
-size = 0
-ARGF.each_line do |line|
+class Path < Array
+  def initialize(cwd='/')
+    super cwd.split('/').reject(&:empty?)
+  end
+
+  def to_s
+    '/' + join('/')
+  end
+end
+cwd = Path.new
+
+tree = {}
+ARGF.each_line.map(&:split).each do |line|
   case line
-  when /^\$ cd (.*)/
-    ndir = $1
-    case ndir
-    when "/"
-      cdir = ['/']
-    when ".."
-      cdir.pop
-    else
-      cdir << ndir
-    end
-
-  when /^\$ ls/
-    raise "Yikes" if dirs[cdir.join('/')].to_i > 0
-    dirs[cdir.join('/')] = 0
-
-  when /^(\d+) (.*)/
-    dirs[cdir.join('/')] += $1.to_i
-
-  when /^dir (.*)/
-    # puts "found dir #{$1}"
-
+  in %w[$ cd /]
+    cwd.clear
+  in %w[$ cd ..]
+    cwd.pop
+  in ['$', 'cd', name]
+    cwd << name
+  in ['$', 'ls']
+    tree[cwd.to_s] = 0
+  in ['dir', name]
+    # do nothing
+  in [size, name]
+    tree[cwd.to_s] += size.to_i
   else
-    raise "Unknown: #{line.inspect}"
-  end
-end
-if size > 0
-  dirs[cdir.join('/')] = size
-  size = 0
-end
-
-dirs.keys.sort_by { |k| k.size }.reverse.each do |dir|
-  size = dirs[dir]
-  dir = dir.split('/')
-  if dir.size > 2
-    dir.pop
-    dirs[dir.join('/')] = dirs[dir.join('/')].to_i + size.to_i
+    raise :hell
   end
 end
 
-pp dirs
-total = 70000000
-free = total - dirs['/']
-required = 30000000 - free
-
-closest = '/'
-cval = required - dirs['/']
-
-dirs.each do |name, size|
-  next if size < required
-  if required - size > cval
-    cval = required - size
-    closest = name
+tree.keys.sort_by { -_1.size }.each do |dir|
+  size = tree[dir]
+  if (dir = Path.new(dir)).pop
+    tree[dir.to_s] += size
   end
 end
-puts closest
-puts dirs['closest']
-puts required
 
+print "Task 1: "
+puts tree.values.reject { _1 >= 100_000 }.sum
+
+FREE = 70_000_000 - tree['/']
+REQUIRED = 30_000_000 - FREE
+print "Task 2: "
+puts tree.values.reject {_1 < REQUIRED }.min
