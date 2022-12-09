@@ -14,7 +14,7 @@ ARGF.each_line do |line|
     count, from, to = Regexp.last_match.captures.map(&:to_i)
 
     bs = stacks[from - 1].shift(count)
-    stacks[to.to_i - 1].prepend(*bs.reverse)
+    stacks[to.to_i - 1].prepend(*bs)
   end
 end
 
