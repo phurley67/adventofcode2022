@@ -30,4 +30,4 @@ ARGF.each_line.each do |move|
   end
 end
 
-puts trail.values.size
+puts trail.size
