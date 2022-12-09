@@ -8,7 +8,7 @@ def follow(head, tail)
   tail[1] += dy <=> 0
 end
 
-snake = Array.new(10) { [0,0] }
+snake = Array.new(10) { [0, 0] }
 trail = {}
 ARGF.each_line.each do |move|
   direction, distance = *move.split
