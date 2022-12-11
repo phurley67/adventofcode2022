@@ -1,0 +1,4 @@
+#!/bin/bash
+
+date
+ruby task1.rb test.txt
