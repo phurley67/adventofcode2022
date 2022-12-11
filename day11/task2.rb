@@ -2,23 +2,9 @@ Monkey = Struct.new(:items, :operation, :test, :on_true, :on_false, :activity) d
   def initialize(info)
     items, op, test, result1, result2 = *info
 
-    operator, operand = *op.match(/(\S)\s(\S+)$/).captures
-    operation = case [operator, operand]
-                in ["+", "old"]
-                  ->(n) { n + n }
-
-                in ["*", "old"]
-                  ->(n) { n * n }
-
-                in ["+", num]
-                  num = num.to_i
-                  ->(n) { n + num }
-
-                in ["*", num]
-                  num = num.to_i
-                  ->(n) { n * num }
-                end
-
+    operator = op.scan(/[*+]/).first.to_sym
+    operand = op.scan(/\d+$/).map(&:to_i).first
+    operation = ->(n) { n.send(operator, operand || n) }
     test = test.gsub(/\D/,'').to_i
     result1 = result1.gsub(/\D/,'').to_i
     result2 = result2.gsub(/\D/,'').to_i
@@ -32,7 +18,7 @@ monkeys = monkeys.map { |monkey| Monkey.new(monkey) }
 # only need to keep track if the worry is divisible by
 # largest of our divisors, so it is always safe to
 # modulo by the lcm of all of our divisors
-lcm = monkeys.map { |m| m.test }.reduce(1) { |acc, n| acc.lcm(n) }
+lcm = monkeys.map { |m| m.test }.reduce(:lcm)
 
 10000.times do
   monkeys.each do |monkey|
